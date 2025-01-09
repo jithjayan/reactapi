@@ -15,9 +15,16 @@ function TaskList(){
         setEditing(true)
         setEditDtls(task)
     }
+
+    const Updatedtls=(id,task)=>{
+        setEditing(false)
+        axios.put(`http://127.0.0.1:8000/api/task/${id}/`,task).then(res=>{
+            setData(data.map((prv)=>prv.id==id? res.data : prv))
+        }).catch(error.console.log(error.message))
+    }
     return(
         <>
-        <div className="container">
+        <div className="container">     
         <table className="table">
             <thead>
                 <tr>
@@ -36,24 +43,34 @@ function TaskList(){
                 ))}
             </tbody>
         </table>
-        {editing ? <EditForm curTask={editDtls}/>:null}
+        {editing ? <EditForm curTask={editDtls} updatetask={Updatedtls}/>:null}
         </div>
         </>
     )
 }
 
-const EditForm=({curTask})=>{
+const EditForm=({curTask,updatetask})=>{
     console.log('EditForm',curTask);
     const [task,setTask]=useState(curTask)
+
+    const handleChange =(e)=>{
+        const {name,value}=e.target 
+        setTask({...task,[name]:value})
+    }
+
+    const handleSubmit = (e)=>{
+        e.preventDefault()
+        updatetask(task.id,task)
+    }
     return(
         <>
-        <form >
-            <input type="text" name="task" id="task" value={task.title}/>
-            <input type="text" name="dis" id="dis" value={task.dis}/>
+        <form onSubmit={handleSubmit}>
+            <input type="text" name="title" id="title" value={task.title} onChange={handleChange}/>
+            <input type="text" name="dis" id="dis" value={task.dis} onChange={handleChange}/>
             <input type="submit" value="update" />
         </form>
         </>
-    )
+    )   
 }
 
 export default TaskList
